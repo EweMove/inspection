@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="EweMove">
+<meta name="theme-color" content="#D8328A">
+<title>EweMove Inspections</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a}
+:root{
+  --pink:#D8328A;--pink-light:#FBEAF0;--pink-dark:#99215e;
+  --green:#95C11E;--green-light:#EAF3DE;
+  --blue:#23B9D6;--blue-light:#E6F7FB;
+  --black:#3C3C3B;--yellow:#DEDC00;--purple:#BA7AB2;
+  --border:#e5e5e5;--text:#1a1a1a;--muted:#666;--surface:#fff;--bg:#f5f5f5;
+  --radius:10px;--radius-lg:14px;
+}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:#f5f5f5;display:flex;flex-direction:column}
+.header{background:var(--pink);color:#fff;padding:14px 16px 12px;position:sticky;top:0;z-index:10}
+.header h1{font-size:17px;font-weight:600;letter-spacing:-0.2px}
+.header p{font-size:12px;opacity:0.85;margin-top:1px}
+.progress-bar{height:3px;background:rgba(216,50,138,0.2);position:sticky;top:48px;z-index:10}
+.progress-fill{height:100%;background:var(--pink);transition:width 0.4s ease}
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,20px)}
+.screen{display:none;padding:16px}
+.screen.active{display:block}
+.slabel{font-size:11px;font-weight:600;color:var(--pink);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:4px}
+.stitle{font-size:20px;font-weight:600;margin-bottom:4px;letter-spacing:-0.3px}
+.ssub{font-size:14px;color:var(--muted);margin-bottom:16px;line-height:1.5}
+/* type cards */
+.type-card{padding:13px 14px;border:1px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;display:flex;align-items:flex-start;gap:12px;background:var(--surface);margin-bottom:8px;transition:border-color 0.12s,box-shadow 0.12s;-webkit-user-select:none;user-select:none}
+.type-card:active{transform:scale(0.99)}
+.type-card.sel{border:2px solid var(--pink);background:var(--pink-light)}
+.tpip{width:11px;height:11px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.tname{font-size:14px;font-weight:600;color:var(--text)}
+.tgoal{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+/* buttons */
+.btn{display:block;width:100%;padding:14px;border-radius:var(--radius);font-size:16px;font-weight:600;cursor:pointer;border:none;margin-top:8px;font-family:inherit;text-align:center;transition:opacity 0.12s;-webkit-user-select:none;user-select:none}
+.btn:active{opacity:0.85;transform:scale(0.99)}
+.btn-p{background:var(--pink);color:#fff}
+.btn-p:disabled{background:#ccc;cursor:not-allowed;transform:none}
+.btn-g{background:var(--surface);color:var(--muted);border:1px solid var(--border)}
+/* briefing */
+.bcard{border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px}
+.bhead{padding:14px 16px;display:flex;align-items:center;gap:10px}
+.bpip{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.35)}
+.bname{font-size:17px;font-weight:600;color:#fff}
+.brow{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.18)}
+.brlbl{font-size:10px;font-weight:700;opacity:0.75;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px}
+.brval{font-size:13px;line-height:1.5}
+/* forms */
+.fg{margin-bottom:12px}
+.fg label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;font-weight:600}
+input[type=text],input[type=date],textarea,select{
+  width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:var(--radius);
+  font-size:16px;background:var(--surface);color:var(--text);font-family:inherit;
+  -webkit-appearance:none;appearance:none;outline:none
+}
+input[type=text]:focus,input[type=date]:focus,textarea:focus{border-color:var(--pink)}
+textarea{resize:none;font-size:14px;line-height:1.5}
+/* section cards */
+.scard{border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:10px;overflow:hidden;background:var(--surface)}
+.shead{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-user-select:none;user-select:none}
+.shead:active{background:#fafafa}
+.shead-l{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.stit{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sbadge{font-size:10px;padding:2px 7px;border-radius:999px;flex-shrink:0;font-weight:600}
+.bm{background:#FBEAF0;color:#99215e}
+.ba{background:#E6F7FB;color:#0a7a8a}
+.sprog{font-size:12px;color:var(--muted);flex-shrink:0;margin-left:8px;font-weight:500}
+.sbody{padding:4px 14px 12px;border-top:1px solid var(--border)}
+/* checkboxes */
+.crow{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;-webkit-user-select:none;user-select:none}
+.crow:last-of-type{border-bottom:none}
+.crow:active .clbl{opacity:0.7}
+.cb{width:24px;height:24px;min-width:24px;border:1.5px solid #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--surface);transition:all 0.1s;margin-top:0px;flex-shrink:0}
+.cb.on{background:var(--pink);border-color:var(--pink)}
+.cb.on::after{content:'';width:5px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(42deg) translateY(-1px)}
+.clbl{font-size:14px;line-height:1.4;flex:1;padding-top:2px}
+.slbl{font-size:11px;font-weight:700;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:0.5px}
+/* radios */
+.ropt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:14px;margin-bottom:6px;-webkit-user-select:none;user-select:none;transition:border-color 0.1s}
+.ropt.on{border:2px solid var(--pink);background:var(--pink-light);color:var(--pink-dark)}
+.rdot{width:18px;height:18px;min-width:18px;border-radius:50%;border:1.5px solid #ccc;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rdot.on{border-color:var(--pink);background:var(--pink)}
+.rdot.on::after{content:'';width:7px;height:7px;background:#fff;border-radius:50%}
+/* notes */
+.narea{margin-top:10px}
+.narea label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px}
+/* follow-up */
+.fu-item{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden}
+.fu-head{display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.fu-head:active{opacity:0.8}
+.fu-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.fu-title{font-size:13px;font-weight:600;flex:1}
+.fu-body{padding:4px 12px 12px;border-top:1px solid #f0f0f0}
+/* summary */
+.srow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:14px}
+.srow:last-child{border-bottom:none}
+.pill{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:600}
+.pg{background:#d4edda;color:#155724}
+.pa{background:#fff3cd;color:#856404}
+.pr{background:#f8d7da;color:#721c24}
+.blocker{background:#f8d7da;border-left:3px solid #dc3545;padding:10px 12px;margin-bottom:10px;font-size:13px;color:#721c24;line-height:1.5;border-radius:0}
+/* success */
+.okbox{background:var(--green-light);border-radius:var(--radius-lg);padding:20px;margin-bottom:12px;text-align:center}
+.okbox p{font-size:14px;color:#27500A;line-height:1.5;margin-top:8px}
+/* status toast */
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:999px;font-size:14px;font-weight:500;z-index:100;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <h1><i class="ti ti-clipboard-check"></i> EweMove inspections</h1>
+    <p id="hdr-sub">Select inspection type to begin</p>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+
+  <div class="scroll-area">
+
+    <!-- SCREEN 1: TYPE -->
+    <div class="screen active" id="s-type">
+      <p class="slabel">Step 1 of 4</p>
+      <p class="stitle">Inspection type</p>
+      <p class="ssub">Select the type for this visit</p>
+      <div id="type-list"></div>
+      <button class="btn btn-p" id="btn-type" onclick="goToBriefing()" disabled>Continue</button>
+    </div>
+
+    <!-- SCREEN 2: BRIEFING -->
+    <div class="screen" id="s-brief">
+      <p class="slabel">Step 2 of 4</p>
+      <p class="stitle">Inspection briefing</p>
+      <p class="ssub">Read before you start</p>
+      <div id="brief-card"></div>
+      <button class="btn btn-p" onclick="goToDetails()">Continue to property details</button>
+      <button class="btn btn-g" onclick="goTo('s-type')" style="margin-top:6px">Back</button>
+    </div>
+
+    <!-- SCREEN 3: DETAILS -->
+    <div class="screen" id="s-details">
+      <p class="slabel">Step 3 of 4</p>
+      <p class="stitle">Property details</p>
+      <div class="fg" style="margin-top:12px">
+        <label>Property address</label>
+        <input type="text" id="f-addr" placeholder="Full address including postcode">
+      </div>
+      <div class="fg">
+        <label>Date</label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="fg">
+        <label>Inspector name</label>
+        <input type="text" id="f-insp" placeholder="Your name">
+      </div>
+      <div class="fg">
+        <label>Pre-inspection notes (optional)</label>
+        <textarea rows="3" id="f-prenotes" placeholder="Historic issues, previous repairs, landlord notes..."></textarea>
+      </div>
+      <button class="btn btn-p" onclick="goToChecklist()">Start checklist</button>
+      <button class="btn btn-g" onclick="goTo('s-brief')" style="margin-top:6px">Back</button>
+    </div>
+
+    <!-- SCREEN 4: CHECKLIST -->
+    <div class="screen" id="s-check">
+      <div id="check-content"></div>
+      <button class="btn btn-p" onclick="goToSignoff()" style="margin-top:4px">Review &amp; sign off</button>
+      <button class="btn btn-g" onclick="goTo('s-details')" style="margin-top:6px">Back</button>
+    </div>
+
+    <!-- SCREEN 5: SIGN-OFF -->
+    <div class="screen" id="s-signoff">
+      <p class="slabel">Step 4 of 4</p>
+      <p class="stitle">Sign-off</p>
+      <div id="signoff-content"></div>
+      <div class="fg" style="margin-top:12px">
+        <label>Overall notes for management</label>
+        <textarea rows="3" id="f-notes" placeholder="Anything management needs to know..."></textarea>
+      </div>
+      <div id="approved-wrap" style="display:none;margin-bottom:12px">
+        <p style="font-size:13px;color:var(--muted);font-weight:600;margin-bottom:8px">Move-in approved?</p>
+        <div id="approved-opts"></div>
+      </div>
+      <button class="btn btn-p" id="btn-submit" onclick="submit()">Submit inspection</button>
+      <button class="btn btn-g" onclick="goTo('s-check')" style="margin-top:6px">Back to checklist</button>
+    </div>
+
+    <!-- SCREEN 6: DONE -->
+    <div class="screen" id="s-done">
+      <div class="okbox">
+        <i class="ti ti-circle-check" style="font-size:40px;color:#27500A"></i>
+        <p>Inspection submitted and synced to Google Sheets.</p>
+      </div>
+      <div class="scard"><div class="sbody" id="done-sum"></div></div>
+      <button class="btn btn-p" onclick="doCopy()"><i class="ti ti-copy"></i> Copy log to clipboard</button>
+      <button class="btn btn-g" onclick="reset()" style="margin-top:6px">Start new inspection</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONFIGURATION ────────────────────────────────────────────────────────────
+// Paste your Google Apps Script Web App URL here after deploying
+const SHEET_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+// ─────────────────────────────────────────────────────────────────────────────
+
+const PINK='#D8328A',GREEN='#95C11E',BLUE='#23B9D6',BLK='#3C3C3B',YEL='#DEDC00',PUR='#BA7AB2';
+
+const TYPES=[
+  {id:'notice',name:'Notice given',color:BLUE,tc:'#fff',
+   goal:'Identify what the tenant must remedy before vacating so they have a chance to put things right.',
+   risk:'Anything missed here and a tenant may be charged at check-out for something that could have been flagged — leading to disputes.',
+   focus:'Damage beyond fair wear & tear, missing items, cleanliness issues, and any unauthorised alterations.'},
+  {id:'checkout',name:'Check-out',color:PINK,tc:'#fff',
+   goal:'Fully evidence property condition after the tenant vacates to support any deposit claim.',
+   risk:'A missed item means the landlord cannot claim from the deposit. This could directly cost them money.',
+   focus:'Compare everything to the original check-in report. Damage, missing items, cleanliness. Photography is critical.'},
+  {id:'checkin',name:'Check-in',color:GREEN,tc:'#fff',
+   goal:'Confirm the property is safe, compliant, clean and fully functional before any new tenant moves in.',
+   risk:'A missed compliance item is a legal and safety risk. A missed defect removes future claim evidence.',
+   focus:'Safety & compliance first (blockers). Then working order. Then cleanliness. Then full condition evidence as the tenancy baseline.'},
+  {id:'sixweek',name:'6-week',color:YEL,tc:BLK,
+   goal:'Check the property is well cared for, identify unreported repairs, and pick up tenancy breaches early.',
+   risk:'Issues missed now become costly later. Unauthorised occupants or pets go undetected.',
+   focus:'How the tenant is living — ventilation, cleanliness, garden. Unreported repairs. Pets or additional occupants.'},
+  {id:'periodic',name:'Periodic',color:PUR,tc:'#fff',
+   goal:'Routine condition check on the property and tenant compliance.',
+   risk:'Gradual deterioration goes unnoticed and maintenance issues escalate.',
+   focus:'Overall condition, repairs needed, tenant behaviour, safety checks, external areas.'},
+];
+
+const SECS={
+  A:{title:'Safety & legal compliance',badge:'mandatory',bc:'bm',
+    items:[
+      {id:'a1',t:'Gas Safety Certificate — valid and in date'},
+      {id:'a2',t:'EICR (Electrical Installation Condition Report) — valid and in date'},
+      {id:'a3',t:'EPC — available and provided to tenant'},
+      {id:'a4',t:'Legionella risk assessment completed'},
+      {id:'a5',t:'Smoke alarms fitted on every floor — tested and working'},
+      {id:'a6',t:'CO alarm fitted where required — tested and working'},
+      {id:'a7',t:'HMO only — fire panel checked and operational'},
+      {id:'a8',t:'HMO only — emergency lighting checked'},
+      {id:'a9',t:'All electrical appliances PAT tested, removed, or labelled as gifted'},
+      {id:'a10',t:'Furniture with fire safety labels present and visible (sofas, beds, cushions)'},
+      {id:'a11',t:'No furniture present without fire safety compliance (remove or flag if absent)'},
+      {id:'a12',t:'No exposed wiring or visible electrical hazards'},
+      {id:'a13',t:'All external doors and windows secure and lockable'},
+    ]},
+  B:{title:'Safety checks',badge:'all types',bc:'ba',
+    items:[
+      {id:'b1',t:'Smoke alarms present and tested on all floors'},
+      {id:'b2',t:'CO alarm present and tested (if gas or solid fuel)'},
+      {id:'b3',t:'No exposed wiring or damaged sockets observed'},
+      {id:'b4',t:'No burning smell or sign of electrical fault'},
+      {id:'b5',t:'No gas smell detected'},
+      {id:'b6',t:'No structural hazards — ceiling, stairs, floor'},
+    ]},
+  C:{title:'Condition & damage',badge:'',
+    subs:[
+      {label:'Entrance & hallways',items:[
+        {id:'c1',t:'Walls — damage or marks beyond fair wear & tear'},
+        {id:'c2',t:'Ceiling — cracks, staining, damp'},
+        {id:'c3',t:'Floor/carpet — damage or staining'},
+        {id:'c4',t:'Front door — condition, locks, letterbox'},
+        {id:'c5',t:'Stairs — condition, banister secure'},
+      ]},
+      {label:'Living room',items:[
+        {id:'c6',t:'Walls, ceiling, floor'},
+        {id:'c7',t:'Windows — condition, handles, locks'},
+        {id:'c8',t:'Radiator, sockets, light fittings'},
+        {id:'c9',t:'Furniture (if furnished) — condition and present'},
+        {id:'c10',t:'Fireplace (if present) — condition, no hazards'},
+      ]},
+      {label:'Kitchen',items:[
+        {id:'c11',t:'Units and worktops — damage, burns, staining'},
+        {id:'c12',t:'Splashback and grout/sealant — condition'},
+        {id:'c13',t:'Sink — condition and sealant'},
+        {id:'c14',t:'Oven — condition and cleanliness inside'},
+        {id:'c15',t:'Hob — condition and cleanliness'},
+        {id:'c16',t:'Extractor fan — present, condition and cleanliness'},
+        {id:'c17',t:'Fridge/freezer — condition and cleanliness (if included)'},
+        {id:'c18',t:'Other appliances — condition and presence confirmed'},
+        {id:'c19',t:'Floor — damage, lifting, staining'},
+      ]},
+      {label:'Bathroom(s)',items:[
+        {id:'c20',t:'Tiles — intact, grout and sealant condition'},
+        {id:'c21',t:'Bath/shower — condition and sealant'},
+        {id:'c22',t:'Toilet — condition, seat present, cleaned'},
+        {id:'c23',t:'Sink — condition, sealant, cleaned'},
+        {id:'c24',t:'Extractor fan — present and working'},
+        {id:'c25',t:'Mould or damp — location and severity noted'},
+        {id:'c26',t:'Floor — condition'},
+      ]},
+      {label:'Bedrooms',items:[
+        {id:'c27',t:'Bedroom 1 — walls, ceiling, floor, windows, fittings'},
+        {id:'c28',t:'Bedroom 2 — walls, ceiling, floor, windows, fittings'},
+        {id:'c29',t:'Bedroom 3+ (if applicable)'},
+        {id:'c30',t:'Wardrobes/built-in storage — condition, doors working'},
+        {id:'c31',t:'Furniture (if furnished) — condition and present'},
+      ]},
+    ]},
+  D:{title:'Cleanliness — general',badge:'',
+    items:[
+      {id:'d1',t:'Overall cleanliness — general impression on entry'},
+      {id:'d2',t:'All rubbish removed from property'},
+      {id:'d3',t:'No strong odours (smoke, pets, damp, cooking)'},
+      {id:'d4',t:'Floors throughout — vacuumed and/or mopped'},
+      {id:'d5',t:'Windows cleaned internally throughout'},
+      {id:'d6',t:'Skirting boards and surfaces dusted and wiped'},
+      {id:'d7',t:'Cobwebs removed throughout'},
+    ],
+    radio:{id:'d-rate',label:'Overall cleanliness rating',opts:[
+      {v:'professional',l:'Professional / move-in standard'},
+      {v:'acceptable',l:'Acceptable — minor issues noted'},
+      {v:'below',l:'Below standard — action required'},
+    ]}},
+  E:{title:'Functional checks',badge:'',
+    items:[
+      {id:'e1',t:'Boiler working, no error codes displayed'},
+      {id:'e2',t:'Heating tested in all rooms'},
+      {id:'e3',t:'Hot water running hot at all taps'},
+      {id:'e4',t:'Hob — all rings/zones working'},
+      {id:'e5',t:'Oven working including grill'},
+      {id:'e6',t:'Extractor fan working'},
+      {id:'e7',t:'Fridge/freezer working (if included)'},
+      {id:'e8',t:'Washing machine/dishwasher working (if included)'},
+      {id:'e9',t:'Toilet(s) flushing, no leaks'},
+      {id:'e10',t:'Shower(s) working, adequate pressure'},
+      {id:'e11',t:'All taps working, all drains clear'},
+      {id:'e12',t:'No leaks under sinks or around baths/shower trays'},
+      {id:'e13',t:'Lights working in all rooms including external'},
+      {id:'e14',t:'Sockets tested in each room'},
+      {id:'e15',t:'All internal doors opening, closing and latching'},
+      {id:'e16',t:'All windows opening, closing and locking correctly'},
+      {id:'e17',t:'Window restrictors present where required'},
+      {id:'e18',t:'Doorbell working (if present)'},
+    ]},
+  F:{title:'Inventory, meters & keys',badge:'check-in / check-out',bc:'ba',
+    items:[
+      {id:'f1',t:'Full inventory completed — room by room'},
+      {id:'f2',t:'Missing items identified and recorded'},
+      {id:'f3',t:'Damaged items photographed and noted'},
+      {id:'f4',t:'Inventory cross-referenced with check-in report (check-out only)'},
+      {id:'f5',t:'Overview photos of every room taken'},
+      {id:'f6',t:'Specific photos of all issues taken'},
+      {id:'f7',t:'Electricity meter reading recorded — photo taken'},
+      {id:'f8',t:'Gas meter reading recorded — photo taken'},
+      {id:'f9',t:'Water meter reading recorded — photo taken (if applicable)'},
+      {id:'f10',t:'All keys logged — type and quantity confirmed'},
+      {id:'f11',t:'Keys signed for on handover (check-in only)'},
+    ]},
+  G:{title:'Tenant behaviour',badge:'',
+    items:[
+      {id:'g1',t:'Property occupied by correct number of tenants on the agreement'},
+      {id:'g2',t:'No evidence of additional or unauthorised occupants'},
+      {id:'g3',t:'No evidence of sub-letting'},
+      {id:'g4',t:'No evidence of pets (unless permitted on tenancy)'},
+      {id:'g5',t:'Property in a reasonably clean and tidy condition'},
+      {id:'g6',t:'Good ventilation evident — no condensation mould from tenant behaviour'},
+      {id:'g7',t:'No damage caused by tenant behaviour'},
+      {id:'g8',t:'No unauthorised alterations, fixtures or decorating'},
+      {id:'g9',t:'No evidence of smoking inside the property (if prohibited)'},
+    ],
+    radio:{id:'g-act',label:'Action required',opts:[
+      {v:'none',l:'No issues — property well maintained'},
+      {v:'advisory',l:'Advisory to raise with tenant'},
+      {v:'formal',l:'Formal written notice required'},
+      {v:'escalate',l:'Management escalation required'},
+    ]}},
+  H:{title:'External areas',badge:'all types',bc:'ba',
+    items:[
+      {id:'h1',t:'External building — walls, gutters, downpipes, roof (visible)'},
+      {id:'h2',t:'Front door, path, entrance — condition and clear access'},
+      {id:'h3',t:'Bins — all present and in correct location'},
+      {id:'h4',t:'No rubbish or fly-tipping outside'},
+      {id:'h5',t:'Garden — lawn cut, no overgrowth (if applicable)'},
+      {id:'h6',t:'Fencing and boundaries — secure, no safety hazards'},
+      {id:'h7',t:'Driveway/parking area — surface and condition noted (if applicable)'},
+      {id:'h8',t:'Garage — condition noted, access clear (if applicable)'},
+    ]},
+  I:{title:'Follow-up actions needed',badge:'all types',bc:'ba',
+    fuSections:[
+      {id:'fu-rep',color:PINK,title:'Repairs',items:[
+        {id:'i1',t:'No repairs identified'},
+        {id:'i2',t:'Repairs identified — listed in notes below'},
+        {id:'i3',t:'5 or more repairs identified — repairs team must be notified before any work is instructed'},
+        {id:'i4',t:'Emergency repair identified — actioned immediately and manager informed'},
+      ],notes:true,notesLabel:'List all repairs identified (one per line)'},
+      {id:'fu-ins',color:BLUE,title:'Further inspection',items:[
+        {id:'i5',t:'No further inspection required'},
+        {id:'i6',t:'Follow-up inspection will be needed — note reason below'},
+      ],notes:true,notesLabel:'Reason and suggested timeframe'},
+      {id:'fu-ten',color:YEL,titleColor:BLK,title:'Tenant follow-up',items:[
+        {id:'i7',t:'No tenant follow-up required'},
+        {id:'i8',t:'Tenant to be notified about items in this report'},
+        {id:'i9',t:'Tenant must confirm receipt of communication'},
+        {id:'i10',t:'Tenant has items they are responsible for fixing'},
+      ],notes:true,notesLabel:'What the tenant needs to be told or asked to do'},
+      {id:'fu-ll',color:GREEN,title:'Landlord notification',items:[
+        {id:'i11',t:'No landlord notification required beyond routine report'},
+        {id:'i12',t:'Landlord to be called — significant repairs or issues to discuss'},
+        {id:'i13',t:'Landlord report to be sent with this inspection'},
+      ],notes:true,notesLabel:'Key points for the landlord call or email'},
+    ]},
+};
+
+const TYPE_SECS={
+  notice:  ['B','C','D','H','I'],
+  checkout:['B','C','D','F','H','I'],
+  checkin: ['A','B','C','D','E','F','H','I'],
+  sixweek: ['B','E','G','H','I'],
+  periodic:['B','G','H','I'],
+};
+
+let ST={type:null,checks:{},radios:{},secNotes:{},fuNotes:{},details:{}};
+let submitLog='';
+
+function allItems(s){
+  const d=SECS[s];
+  if(d.subs) return d.subs.flatMap(x=>x.items);
+  if(d.fuSections) return d.fuSections.flatMap(f=>f.items);
+  return d.items||[];
+}
+
+function renderTypes(){
+  document.getElementById('type-list').innerHTML=TYPES.map(t=>`
+    <div class="type-card" id="tc-${t.id}" onclick="pickType('${t.id}')">
+      <div class="tpip" style="background:${t.color}"></div>
+      <div><div class="tname">${t.name}</div><div class="tgoal">${t.goal}</div></div>
+    </div>`).join('');
+}
+
+function pickType(id){
+  ST.type=id;
+  document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('tc-'+id).classList.add('sel');
+  document.getElementById('btn-type').disabled=false;
+}
+
+function goToBriefing(){
+  if(!ST.type) return;
+  const t=TYPES.find(x=>x.id===ST.type);
+  document.getElementById('hdr-sub').textContent=t.name;
+  document.getElementById('brief-card').innerHTML=`
+    <div class="bcard" style="background:${t.color}">
+      <div class="bhead"><div class="bpip"></div><span class="bname">${t.name}</span></div>
+      ${[['Primary goal',t.goal],['Key risk if missed',t.risk],['Main focus',t.focus]].map(([l,v])=>`
+      <div class="brow" style="color:${t.tc}"><div class="brlbl">${l}</div><div class="brval">${v}</div></div>`).join('')}
+    </div>`;
+  goTo('s-brief'); setProg(25);
+}
+
+function goToDetails(){
+  goTo('s-details'); setProg(40);
+  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+}
+
+function goToChecklist(){
+  ST.details={
+    addr:document.getElementById('f-addr').value,
+    date:document.getElementById('f-date').value,
+    insp:document.getElementById('f-insp').value,
+    pre:document.getElementById('f-prenotes').value
+  };
+  renderChecklist(); goTo('s-check'); setProg(60);
+  document.querySelector('.scroll-area').scrollTop=0;
+}
+
+function renderChecklist(){
+  const secs=TYPE_SECS[ST.type];
+  let html='';
+  secs.forEach(s=>{
+    const d=SECS[s];
+    const items=allItems(s);
+    const done=items.filter(i=>ST.checks[i.id]).length;
+    html+=`<div class="scard" id="sc-${s}">
+      <div class="shead" onclick="toggleSec('${s}')">
+        <div class="shead-l">
+          <span class="stit">${d.title}</span>
+          ${d.badge?`<span class="sbadge ${d.bc||''}">${d.badge}</span>`:''}
+        </div>
+        <span class="sprog" id="sp-${s}">${done}/${items.length}</span>
+      </div>
+      <div class="sbody" id="sb-${s}" style="display:none">`;
+
+    if(d.fuSections){
+      d.fuSections.forEach(fu=>{
+        html+=`<div class="fu-item" id="fui-${fu.id}">
+          <div class="fu-head" onclick="toggleFU('${fu.id}')" style="background:${fu.color}12">
+            <div class="fu-dot" style="background:${fu.color}"></div>
+            <span class="fu-title" style="color:${fu.titleColor||'var(--text)'}">${fu.title}</span>
+            <i class="ti ti-chevron-down" style="font-size:14px;color:var(--muted)"></i>
+          </div>
+          <div class="fu-body" id="fub-${fu.id}" style="display:none">`;
+        fu.items.forEach(i=>html+=chkHTML(i));
+        if(fu.notes){
+          const nk='fu-'+fu.id;
+          html+=`<div class="narea" style="margin-top:8px"><label>${fu.notesLabel}</label>
+            <textarea rows="2" placeholder="Notes..." onchange="ST.fuNotes['${nk}']=this.value">${ST.fuNotes[nk]||''}</textarea></div>`;
+        }
+        html+='</div></div>';
+      });
+    } else if(d.subs){
+      d.subs.forEach(sub=>{
+        html+=`<p class="slbl">${sub.label}</p>`;
+        sub.items.forEach(i=>html+=chkHTML(i));
+      });
+    } else if(d.items){
+      d.items.forEach(i=>html+=chkHTML(i));
+    }
+
+    if(d.radio){
+      const rg=d.radio;
+      html+=`<p class="slbl" style="margin-top:12px">${rg.label}</p>`;
+      rg.opts.forEach(o=>{
+        const on=ST.radios[rg.id]===o.v;
+        html+=`<div class="ropt${on?' on':''}" onclick="pickRadio('${rg.id}','${o.v}',this)">
+          <div class="rdot${on?' on':''}"></div><span>${o.l}</span></div>`;
+      });
+    }
+
+    if(!d.fuSections){
+      const nk='n-'+s;
+      html+=`<div class="narea" style="margin-top:10px"><label>Section notes</label>
+        <textarea rows="2" placeholder="Flag anything in this section..." onchange="ST.secNotes['${nk}']=this.value">${ST.secNotes[nk]||''}</textarea></div>`;
+    }
+    html+='</div></div>';
+  });
+  document.getElementById('check-content').innerHTML=html;
+
+  const secs2=TYPE_SECS[ST.type];
+  if(secs2.includes('A')) toggleSec('A',true);
+  toggleSec(secs2[secs2.includes('A')?1:0],true);
+  toggleSec('I',true);
+  SECS.I.fuSections.forEach(fu=>toggleFU(fu.id,true));
+}
+
+function chkHTML(item){
+  const on=ST.checks[item.id];
+  return `<div class="crow" onclick="tick('${item.id}')">
+    <div class="cb${on?' on':''}" id="cb-${item.id}"></div>
+    <span class="clbl">${item.t}</span></div>`;
+}
+
+function tick(id){
+  ST.checks[id]=!ST.checks[id];
+  const el=document.getElementById('cb-'+id);
+  if(el) el.className='cb'+(ST.checks[id]?' on':'');
+  updateProgs();
+}
+
+function updateProgs(){
+  (TYPE_SECS[ST.type]||[]).forEach(s=>{
+    const items=allItems(s);
+    const done=items.filter(i=>ST.checks[i.id]).length;
+    const el=document.getElementById('sp-'+s);
+    if(el) el.textContent=`${done}/${items.length}`;
+  });
+}
+
+function toggleSec(s,open){
+  const b=document.getElementById('sb-'+s);
+  if(!b) return;
+  b.style.display=(open||b.style.display==='none')?'block':'none';
+}
+
+function toggleFU(id,open){
+  const b=document.getElementById('fub-'+id);
+  if(!b) return;
+  b.style.display=(open||b.style.display==='none')?'block':'none';
+}
+
+function pickRadio(gid,val,el){
+  ST.radios[gid]=val;
+  const container=el.closest('.sbody,.fu-body,#s-signoff');
+  if(container) container.querySelectorAll(`[onclick*="pickRadio('${gid}'"]`).forEach(e=>{
+    e.classList.remove('on');
+    const d=e.querySelector('.rdot');if(d) d.className='rdot';
+  });
+  el.classList.add('on');
+  const d=el.querySelector('.rdot');if(d) d.className='rdot on';
+}
+
+function goToSignoff(){
+  const secs=TYPE_SECS[ST.type];
+  let html='',blockers=[];
+  secs.forEach(s=>{
+    const d=SECS[s];
+    const items=allItems(s);
+    const done=items.filter(i=>ST.checks[i.id]).length;
+    const pct=items.length?Math.round(done/items.length*100):0;
+    const pc=pct===100?'pg':pct>=50?'pa':'pr';
+    if(pct<100&&s==='A') blockers.push(d.title);
+    html+=`<div class="srow"><span>${d.title}</span><span class="pill ${pc}">${done}/${items.length}</span></div>`;
+  });
+  let out='';
+  if(blockers.length) out+=`<div class="blocker"><i class="ti ti-alert-triangle"></i> Blocker: ${blockers.join(', ')} must be 100% before check-in can proceed.</div>`;
+  out+=`<div class="scard"><div class="sbody">${html}</div></div>`;
+  document.getElementById('signoff-content').innerHTML=out;
+
+  const aw=document.getElementById('approved-wrap');
+  if(ST.type==='checkin'){
+    aw.style.display='block';
+    document.getElementById('approved-opts').innerHTML=[
+      {v:'yes',l:'Yes — property meets EweMove standards'},
+      {v:'no',l:'No — blockers outstanding'},
+      {v:'na',l:'N/A'},
+    ].map(o=>{const on=ST.radios['approved']===o.v;
+      return `<div class="ropt${on?' on':''}" onclick="pickRadio('approved','${o.v}',this)"><div class="rdot${on?' on':''}"></div><span>${o.l}</span></div>`;
+    }).join('');
+  } else { aw.style.display='none'; }
+
+  goTo('s-signoff'); setProg(85);
+  document.querySelector('.scroll-area').scrollTop=0;
+}
+
+function submit(){
+  const t=TYPES.find(x=>x.id===ST.type);
+  const secs=TYPE_SECS[ST.type];
+  const lines=[
+    '=== EWEMOVE INSPECTION LOG ===',
+    `Type: ${t.name}`,`Address: ${ST.details.addr}`,
+    `Inspector: ${ST.details.insp}`,`Date: ${ST.details.date}`,
+    `Submitted: ${new Date().toLocaleString('en-GB')}`,
+    `Pre-notes: ${ST.details.pre||'None'}`,'',
+  ];
+  secs.forEach(s=>{
+    const d=SECS[s];
+    const items=allItems(s);
+    const done=items.filter(i=>ST.checks[i.id]).length;
+    lines.push(`--- ${d.title.toUpperCase()} (${done}/${items.length}) ---`);
+    if(d.fuSections){
+      d.fuSections.forEach(fu=>{
+        lines.push(`  [${fu.title}]`);
+        fu.items.forEach(i=>lines.push(`  [${ST.checks[i.id]?'✓':' '}] ${i.t}`));
+        const nk='fu-'+fu.id;
+        if(ST.fuNotes[nk]) lines.push(`  Notes: ${ST.fuNotes[nk]}`);
+      });
+    } else {
+      items.forEach(i=>lines.push(`[${ST.checks[i.id]?'✓':' '}] ${i.t}`));
+    }
+    const nk='n-'+s;
+    if(ST.secNotes[nk]) lines.push(`Notes: ${ST.secNotes[nk]}`);
+    lines.push('');
+  });
+  const on=document.getElementById('f-notes').value;
+  if(on){lines.push('OVERALL NOTES:');lines.push(on);lines.push('');}
+  lines.push(`Move-in approved: ${ST.radios['approved']||'N/A'}`);
+  submitLog=lines.join('\n');
+
+  // Build summary for done screen
+  let dhtml='';
+  secs.forEach(s=>{
+    const d=SECS[s];const items=allItems(s);
+    const done=items.filter(i=>ST.checks[i.id]).length;
+    const pct=items.length?Math.round(done/items.length*100):0;
+    dhtml+=`<div class="srow"><span>${d.title}</span><span class="pill ${pct===100?'pg':pct>=50?'pa':'pr'}">${pct}%</span></div>`;
+  });
+  document.getElementById('done-sum').innerHTML=dhtml;
+
+  // Post to Google Sheets
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true; btn.textContent='Submitting...';
+
+  const payload={
+    type:t.name,
+    address:ST.details.addr,
+    inspector:ST.details.insp,
+    date:ST.details.date,
+    repairs:ST.radios['i-rep']||'Not recorded',
+    furtherInspection:ST.checks['i6']?'Yes':'No',
+    tenantFollowUp:ST.checks['i8']?'Yes':'No',
+    landlordNotification:ST.checks['i12']?'Yes':'No',
+    moveInApproved:ST.radios['approved']||'N/A',
+    overallNotes:document.getElementById('f-notes').value,
+    fullLog:submitLog,
+  };
+
+  if(SHEET_URL && SHEET_URL!=='YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'){
+    fetch(SHEET_URL,{method:'POST',body:JSON.stringify(payload)})
+      .then(()=>{ goTo('s-done'); setProg(100); })
+      .catch(()=>{ showToast('Submitted locally — Sheet sync failed. Copy log manually.'); goTo('s-done'); setProg(100); });
+  } else {
+    showToast('No Sheet URL set — log saved locally only');
+    goTo('s-done'); setProg(100);
+  }
+  btn.disabled=false; btn.textContent='Submit inspection';
+}
+
+function doCopy(){
+  navigator.clipboard.writeText(submitLog).then(()=>showToast('Copied to clipboard'));
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function reset(){
+  ST={type:null,checks:{},radios:{},secNotes:{},fuNotes:{},details:{}};
+  submitLog='';
+  document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('btn-type').disabled=true;
+  document.getElementById('hdr-sub').textContent='Select inspection type to begin';
+  goTo('s-type'); setProg(0);
+  document.querySelector('.scroll-area').scrollTop=0;
+}
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function setProg(p){
+  document.getElementById('prog').style.width=p+'%';
+}
+
+renderTypes();
+</script>
+</body>
+</html>
